@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ireland Family Tour · August 2026</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, 'Segoe UI', sans-serif; background: #f4f1eb; color: #2a2a28; font-size: 15px; line-height: 1.6; }
+
+  /* COVER */
+  .cover { position: relative; height: 480px; overflow: hidden; display: flex; align-items: flex-end; background: #0f4a30; }
+  .cover-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 0.5s; }
+  .cover-content { position: relative; padding: 2.5rem 3rem; color: #fff; width: 100%; background: linear-gradient(transparent, rgba(0,0,0,0.55)); }
+  .cover-tag { font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.7); margin-bottom: 10px; }
+  .cover-title { font-family: Georgia, serif; font-size: 46px; font-weight: 400; line-height: 1.15; margin-bottom: 12px; }
+  .cover-sub { font-size: 16px; color: rgba(255,255,255,0.85); margin-bottom: 1.5rem; }
+  .cover-chips { display: flex; gap: 10px; flex-wrap: wrap; }
+  .chip { background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.3); border-radius: 20px; padding: 4px 14px; font-size: 13px; color: #fff; }
+
+  /* LAYOUT */
+  .container { max-width: 860px; margin: 0 auto; padding: 0 1.5rem; }
+
+  /* SUMMARY BAR */
+  .summary-bar { background: #1a5c3a; color: #fff; padding: 1.25rem 0; }
+  .summary-bar .container { display: flex; gap: 0; justify-content: space-between; flex-wrap: wrap; }
+  .summary-stat { text-align: center; flex: 1; padding: 0 1rem; border-right: 1px solid rgba(255,255,255,0.2); }
+  .summary-stat:last-child { border-right: none; }
+  .summary-stat-value { font-size: 22px; font-weight: 600; font-family: Georgia, serif; }
+  .summary-stat-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255,255,255,0.65); margin-top: 2px; }
+
+  /* OVERVIEW MAP */
+  .overview-map-wrap { background: #fff; border-bottom: 1px solid #e0dbd0; }
+  .overview-map-wrap .container { padding-top: 0; padding-bottom: 0; }
+  #map-overview { height: 420px; width: 100%; }
+
+  /* SECTION HEADER */
+  .section-header { padding: 2.5rem 0 0.75rem; border-bottom: 1px solid #d9d5cc; margin-bottom: 1.5rem; }
+  .section-header h2 { font-family: Georgia, serif; font-size: 13px; font-weight: 400; letter-spacing: 0.1em; text-transform: uppercase; color: #1a5c3a; }
+
+  /* DAY CARD */
+  .day-card { background: #fff; border-radius: 10px; overflow: hidden; margin-bottom: 1.5rem; border: 1px solid #e5e1d8; }
+  .day-header { display: flex; align-items: stretch; background: #fff; border-bottom: 1px solid #eee9df; }
+  .day-badge { background: #1a5c3a; color: #fff; width: 70px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 14px 8px; flex-shrink: 0; gap: 2px; }
+  .day-badge .num { font-size: 26px; font-weight: 700; font-family: Georgia, serif; line-height: 1; }
+  .day-badge .label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.75; }
+  .day-meta { padding: 14px 18px; flex: 1; }
+  .day-date { font-size: 13px; color: #888; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px; }
+  .day-title { font-size: 19px; font-family: Georgia, serif; font-weight: 400; color: #1a1a18; }
+
+  /* DAY MAP */
+  .day-map { height: 220px; border-bottom: 1px solid #eee9df; }
+
+  .drive-pill { display: inline-flex; align-items: center; gap: 5px; background: #f0ede6; border: 1px solid #e0dbd0; border-radius: 20px; font-size: 12px; color: #666; padding: 3px 12px; margin: 12px 18px 4px; }
+
+  /* IMG GRID */
+  .img-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0; }
+  .img-slot { position: relative; height: 200px; overflow: hidden; background: #1a5c3a; }
+  .img-slot img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .img-caption { position: absolute; bottom: 0; left: 0; right: 0; padding: 28px 12px 10px; background: linear-gradient(transparent, rgba(0,0,0,0.65)); color: #fff; font-size: 12px; font-weight: 500; }
+  .img-placeholder { width: 100%; height: 100%; background: #1a5c3a; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; color: rgba(255,255,255,0.7); font-size: 12px; text-align: center; padding: 12px; }
+  .img-placeholder .ph-icon { font-size: 28px; opacity: 0.5; }
+  .img-placeholder .ph-text { font-size: 11px; opacity: 0.5; }
+
+  /* ACTIVITIES */
+  .activities { padding: 14px 18px 16px; }
+  .activity { display: flex; gap: 10px; margin-bottom: 10px; font-size: 14px; line-height: 1.55; color: #3a3a38; }
+  .activity:last-child { margin-bottom: 0; }
+  .activity-icon { width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; font-size: 11px; }
+  .activity-icon.green { background: #e2f0ea; color: #1a5c3a; }
+  .activity-icon.amber { background: #fef0d4; color: #b47a00; }
+  .activity-icon.blue  { background: #deedf8; color: #1a5a8a; }
+  .activity b { font-weight: 600; color: #1a1a18; }
+
+  /* HOTEL SECTION */
+  .hotel-section { border-top: 1px solid #eee9df; display: grid; grid-template-columns: 220px 1fr; }
+  .hotel-img-slot { position: relative; height: 140px; overflow: hidden; background: #1a5c3a; }
+  .hotel-img-slot img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .hotel-img-placeholder { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; }
+  .hotel-details { padding: 14px 18px; background: #faf8f4; display: flex; flex-direction: column; justify-content: center; gap: 4px; }
+  .hotel-name { font-size: 14px; font-weight: 600; color: #1a1a18; }
+  .hotel-meta { font-size: 12px; color: #888; }
+  .hotel-price-row { display: flex; align-items: center; gap: 10px; margin-top: 6px; }
+  .hotel-price { font-size: 20px; font-weight: 700; font-family: Georgia, serif; color: #1a5c3a; }
+  .hotel-book { font-size: 12px; color: #1a5a8a; text-decoration: none; border: 1px solid #c2d8ed; border-radius: 4px; padding: 3px 10px; }
+  .hotel-book:hover { background: #deedf8; }
+  .hotel-stars { color: #c47a00; font-size: 13px; letter-spacing: 1px; }
+
+  /* DEPARTURE */
+  .departure-strip { background: #1a5c3a; color: #fff; padding: 12px 18px; display: flex; align-items: center; justify-content: space-between; font-size: 13px; gap: 8px; flex-wrap: wrap; }
+  .departure-strip span { color: rgba(255,255,255,0.75); }
+  .departure-strip strong { font-weight: 600; color: #fff; }
+
+  /* COST TABLE */
+  .cost-section { background: #fff; border-radius: 10px; border: 1px solid #e5e1d8; overflow: hidden; margin-bottom: 2.5rem; }
+  .cost-header { background: #1a5c3a; color: #fff; padding: 14px 20px; font-family: Georgia, serif; font-size: 16px; font-weight: 400; }
+  .cost-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; border-bottom: 1px solid #f0ece4; font-size: 14px; }
+  .cost-row:last-of-type { border-bottom: none; }
+  .cost-row .label { color: #555; }
+  .cost-row .night { color: #aaa; font-size: 12px; margin-left: 8px; }
+  .cost-row .amount { font-weight: 600; color: #1a1a18; }
+  .cost-total { display: flex; justify-content: space-between; align-items: center; padding: 14px 20px; border-top: 2px solid #1a5c3a; background: #f4f9f6; }
+  .cost-total .label { font-weight: 600; color: #1a1a18; font-size: 15px; }
+  .cost-total .amount { font-weight: 700; font-size: 22px; font-family: Georgia, serif; color: #1a5c3a; }
+  .cost-note { padding: 12px 20px; font-size: 12px; color: #888; background: #faf8f4; border-top: 1px solid #f0ece4; line-height: 1.6; }
+
+  /* PRINT */
+  .print-bar { text-align: center; padding: 1rem 0 2.5rem; }
+  .print-btn { background: #1a5c3a; color: #fff; border: none; border-radius: 6px; padding: 10px 28px; font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit; }
+  .print-btn:hover { background: #14472c; }
+
+  .footer { background: #2a2a28; color: rgba(255,255,255,0.5); text-align: center; padding: 1.5rem; font-size: 12px; }
+
+  /* Leaflet marker override */
+  .custom-marker { background: #1a5c3a; color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; border: 2px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.4); }
+  .custom-marker.stop { background: #c47a00; }
+  .custom-marker.airport { background: #1a5a8a; }
+
+  @media print {
+    body { background: #fff; font-size: 13px; }
+    .print-bar { display: none; }
+    .cover { height: 260px; }
+    .cover-title { font-size: 32px; }
+    .day-card { break-inside: avoid; page-break-inside: avoid; }
+    .day-map, #map-overview { display: none; }
+    .img-slot { height: 150px; }
+    .summary-bar, .day-badge, .hotel-details, .cover { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+
+  @media (max-width: 600px) {
+    .hotel-section { grid-template-columns: 1fr; }
+    .hotel-img-slot { height: 180px; }
+    .cover-title { font-size: 32px; }
+    .cover-content { padding: 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<div class="cover">
+  <img class="cover-img" id="cover-img" alt="Ireland scenery">
+  <div class="cover-content">
+    <div class="cover-tag">Family Travel · Ireland</div>
+    <div class="cover-title">O'Reilly Family<br>Ireland Tour</div>
+    <div class="cover-sub">Steve, Kelly, Warren &amp; Alice · 2–7 August 2026</div>
+    <div class="cover-chips">
+      <span class="chip">✈ Edinburgh → Dublin return</span>
+      <span class="chip">🏰 Wexford Wedding</span>
+      <span class="chip">🚗 Self-drive tour</span>
+      <span class="chip">5 nights · £881</span>
+    </div>
+  </div>
+</div>
+
+<!-- SUMMARY BAR -->
+<div class="summary-bar">
+  <div class="container">
+    <div class="summary-stat"><div class="summary-stat-value">£881</div><div class="summary-stat-label">Accommodation</div></div>
+    <div class="summary-stat"><div class="summary-stat-value">£176</div><div class="summary-stat-label">Per night avg</div></div>
+    <div class="summary-stat"><div class="summary-stat-value">~700 km</div><div class="summary-stat-label">Total driving</div></div>
+    <div class="summary-stat"><div class="summary-stat-value">6</div><div class="summary-stat-label">Destinations</div></div>
+    <div class="summary-stat"><div class="summary-stat-value">FR816</div><div class="summary-stat-label">Home · Fri 20:20</div></div>
+  </div>
+</div>
+
+<!-- OVERVIEW MAP -->
+<div class="overview-map-wrap">
+  <div id="map-overview"></div>
+</div>
+
+<div class="container">
+  <div class="section-header"><h2>Day by day</h2></div>
+
+  <!-- ── DAY 1 ── -->
+  <div class="day-card">
+    <div class="day-header">
+      <div class="day-badge"><span class="num">1</span><span class="label">Day</span></div>
+      <div class="day-meta">
+        <div class="day-date">Sunday 2 August</div>
+        <div class="day-title">Wexford → Cork</div>
+      </div>
+    </div>
+    <div class="day-map" id="map-day1"></div>
+    <div class="drive-pill">🚗 Wexford to Cork · ~2h 45min · 185 km · depart after noon check-out</div>
+    <div class="img-grid">
+      <div class="img-slot" id="img-cashel"><div class="img-placeholder"><div class="ph-icon">🏰</div><div>Rock of Cashel</div><div class="ph-text">Loading…</div></div></div>
+      <div class="img-slot" id="img-cork"><div class="img-placeholder"><div class="ph-icon">🛒</div><div>English Market, Cork</div><div class="ph-text">Loading…</div></div></div>
+    </div>
+    <div class="activities">
+      <div class="activity"><div class="activity-icon green">🏰</div><div><b>Rock of Cashel</b> — dramatic 12th-century castle on a limestone outcrop. Perfect halfway stop (~1.5 hrs from Wexford). Kids can scramble around the ruins and battlements.</div></div>
+      <div class="activity"><div class="activity-icon amber">🛒</div><div><b>English Market, Cork</b> — arrive late afternoon. One of Ireland's finest Victorian covered food markets. Great for a stroll and picking up supplies.</div></div>
+      <div class="activity"><div class="activity-icon blue">🚶</div><div><b>Cork city walk</b> — Grand Parade, St Patrick's Street, River Lee. Easy evening stretch after the drive.</div></div>
+      <div class="activity"><div class="activity-icon amber">🦒</div><div><b>Fota Wildlife Park</b> <em>(optional)</em> — 20 mins east of Cork. Giraffes, cheetahs and kangaroos roam freely. Half day; Warren and Alice will love it. Could slot in before or instead of the city walk.</div></div>
+    </div>
+    <div class="hotel-section">
+      <div class="hotel-img-slot" id="himg-premierinn">
+        <div class="hotel-img-placeholder" style="background: linear-gradient(135deg, #7b0046 0%, #4a002b 100%); color: rgba(255,255,255,0.9);">
+          <div style="font-size:28px;">🏨</div>
+          <div style="font-size:13px; font-weight:600; text-align:center; padding: 0 8px;">Premier Inn</div>
+        </div>
+      </div>
+      <div class="hotel-details">
+        <div class="hotel-name">Premier Inn Cork City Centre</div>
+        <div class="hotel-stars">★★★</div>
+        <div class="hotel-meta">Night 1 &amp; 2 · Rating 8.3</div>
+        <div class="hotel-price-row"><span class="hotel-price">£133</span><span style="font-size:12px;color:#888;">/ night</span><a class="hotel-book" href="https://www.premierinn.com" target="_blank">Book →</a></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── DAY 2 ── -->
+  <div class="day-card">
+    <div class="day-header">
+      <div class="day-badge"><span class="num">2</span><span class="label">Day</span></div>
+      <div class="day-meta">
+        <div class="day-date">Monday 3 August</div>
+        <div class="day-title">Day trip — Killarney &amp; Aqua Dome Tralee</div>
+      </div>
+    </div>
+    <div class="day-map" id="map-day2"></div>
+    <div class="drive-pill">🚗 Cork → Killarney 1h → Tralee 45min → Cork 1h 30min · base: Cork</div>
+    <div class="img-grid">
+      <div class="img-slot" id="img-killarney"><div class="img-placeholder"><div class="ph-icon">🌲</div><div>Killarney National Park</div><div class="ph-text">Loading…</div></div></div>
+      <div class="img-slot" id="img-tralee"><div class="img-placeholder"><div class="ph-icon">🌊</div><div>Aqua Dome, Tralee</div><div class="ph-text">Loading…</div></div></div>
+    </div>
+    <div class="activities">
+      <div class="activity"><div class="activity-icon green">🌲</div><div><b>Killarney National Park</b> — morning stop en route. Ross Castle on the lakeshore, Torc Waterfall, views of the MacGillycuddy's Reeks.</div></div>
+      <div class="activity"><div class="activity-icon blue">🌊</div><div><b>Aqua Dome Tralee</b> — Ireland's largest waterpark. Wave pool, giant slides, toddler zones, spa for the adults. Allow 3–4 hours. <b>Book in advance</b> — sells out on summer Mondays.</div></div>
+      <div class="activity"><div class="activity-icon amber">🍕</div><div><b>Lunch &amp; dinner in Tralee</b> — good family restaurants on the main street before the drive back to Cork.</div></div>
+      <div class="activity"><div class="activity-icon green">🦇</div><div><b>Crag Cave</b> <em>(optional, en route to Aqua Dome)</em> — Ireland's best cave system, 5 mins from Tralee. Dramatic stalactites, very accessible. 45 mins; a great pre-waterpark warm-up.</div></div>
+    </div>
+    <div class="hotel-section">
+      <div class="hotel-img-slot" id="himg-premierinn2">
+        <div class="hotel-img-placeholder" style="background: linear-gradient(135deg, #7b0046 0%, #4a002b 100%); color: rgba(255,255,255,0.9);">
+          <div style="font-size:28px;">🏨</div>
+          <div style="font-size:13px; font-weight:600; text-align:center; padding: 0 8px;">Premier Inn</div>
+        </div>
+      </div>
+      <div class="hotel-details">
+        <div class="hotel-name">Premier Inn Cork City Centre</div>
+        <div class="hotel-stars">★★★</div>
+        <div class="hotel-meta">Night 2 · same hotel, second night</div>
+        <div class="hotel-price-row"><span class="hotel-price">£133</span><span style="font-size:12px;color:#888;">/ night</span><a class="hotel-book" href="https://www.premierinn.com" target="_blank">Book →</a></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── DAY 3 ── -->
+  <div class="day-card">
+    <div class="day-header">
+      <div class="day-badge"><span class="num">3</span><span class="label">Day</span></div>
+      <div class="day-meta">
+        <div class="day-date">Tuesday 4 August</div>
+        <div class="day-title">Cork → Bunratty → Limerick</div>
+      </div>
+    </div>
+    <div class="day-map" id="map-day3"></div>
+    <div class="drive-pill">🚗 Cork to Limerick · ~1h 15min · 104 km via M20 · Bunratty is 15km before Limerick</div>
+    <div class="img-grid">
+      <div class="img-slot" id="img-bunratty"><div class="img-placeholder"><div class="ph-icon">🏰</div><div>Bunratty Castle</div><div class="ph-text">Loading…</div></div></div>
+      <div class="img-slot" id="img-kingjohn"><div class="img-placeholder"><div class="ph-icon">🛡️</div><div>King John's Castle</div><div class="ph-text">Loading…</div></div></div>
+    </div>
+    <div class="activities">
+      <div class="activity"><div class="activity-icon green">⛪</div><div><b>St Fin Barre's Cathedral, Cork</b> — stunning French Gothic cathedral, worth 30 mins before leaving. Extraordinary ornate exterior.</div></div>
+      <div class="activity"><div class="activity-icon amber">🏰</div><div><b>Bunratty Castle &amp; Folk Park</b> — 15th-century tower house with a recreated Victorian village. Great for the kids, allow 2 hours.</div></div>
+      <div class="activity"><div class="activity-icon blue">🛡️</div><div><b>King John's Castle, Limerick</b> — 13th-century Anglo-Norman fortress on King's Island in the River Shannon. Interactive exhibits covering 800 years of history.</div></div>
+    </div>
+    <div class="hotel-section">
+      <div class="hotel-img-slot" id="himg-maldronlimerick">
+        <div class="hotel-img-placeholder" style="background: linear-gradient(135deg, #00527a 0%, #003350 100%); color: rgba(255,255,255,0.9);">
+          <div style="font-size:28px;">🏊</div>
+          <div style="font-size:13px; font-weight:600; text-align:center; padding: 0 8px;">Maldron Hotels</div>
+        </div>
+      </div>
+      <div class="hotel-details">
+        <div class="hotel-name">Maldron Hotel &amp; Leisure Centre, Limerick</div>
+        <div class="hotel-stars">★★★</div>
+        <div class="hotel-meta">Night 3 · Rating 7.3 · Indoor pool · Free parking</div>
+        <div class="hotel-price-row"><span class="hotel-price">£204</span><a class="hotel-book" href="https://www.booking.com/hotel/ie/quality-leisure-centre-limerick.html" target="_blank">Book →</a></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── DAY 4 ── -->
+  <div class="day-card">
+    <div class="day-header">
+      <div class="day-badge"><span class="num">4</span><span class="label">Day</span></div>
+      <div class="day-meta">
+        <div class="day-date">Wednesday 5 August</div>
+        <div class="day-title">Limerick → The Burren → Galway</div>
+      </div>
+    </div>
+    <div class="day-map" id="map-day4"></div>
+    <div class="drive-pill">🚗 Scenic route via Burren &amp; coast · ~2h · or ~1h direct on M18</div>
+    <div class="img-grid">
+      <div class="img-slot" id="img-burren"><div class="img-placeholder"><div class="ph-icon">🪨</div><div>The Burren</div><div class="ph-text">Loading…</div></div></div>
+      <div class="img-slot" id="img-moher"><div class="img-placeholder"><div class="ph-icon">⛰️</div><div>Cliffs of Moher</div><div class="ph-text">Loading…</div></div></div>
+      <div class="img-slot" id="img-galway"><div class="img-placeholder"><div class="ph-icon">⚓</div><div>Galway City</div><div class="ph-text">Loading…</div></div></div>
+    </div>
+    <div class="activities">
+      <div class="activity"><div class="activity-icon green">🪨</div><div><b>The Burren</b> — take the coast road via Ballyvaughan. Vast limestone karst landscape unlike anywhere else in the world.</div></div>
+      <div class="activity"><div class="activity-icon amber">⛰️</div><div><b>Cliffs of Moher</b> (optional) — Ireland's most dramatic coastal views. Add ~1 hour to the day; folds naturally into the Burren route.</div></div>
+      <div class="activity"><div class="activity-icon blue">⚓</div><div><b>Galway city evening</b> — Spanish Arch, the Latin Quarter, Shop Street. Excellent pubs, street performers, restaurants. Salthill promenade 10 mins from hotel.</div></div>
+      <div class="activity"><div class="activity-icon amber">🎡</div><div><b>Leisureland, Salthill</b> <em>(optional)</em> — funfair, dodgems and soft play right on the seafront. The kids will spot it on the prom walk and that'll be that. Easy half-hour stop.</div></div>
+      <div class="activity"><div class="activity-icon green">🐴</div><div><b>Connemara pony trekking</b> <em>(optional)</em> — several farms offer 1-hour family treks just outside Galway. Book the day before. Brilliant for the kids and a very Irish thing to do.</div></div>
+    </div>
+    <div class="hotel-section">
+      <div class="hotel-img-slot" id="himg-maldronsandyroad">
+        <div class="hotel-img-placeholder" style="background: linear-gradient(135deg, #00527a 0%, #003350 100%); color: rgba(255,255,255,0.9);">
+          <div style="font-size:28px;">🅿️</div>
+          <div style="font-size:13px; font-weight:600; text-align:center; padding: 0 8px;">Maldron Hotels</div>
+        </div>
+      </div>
+      <div class="hotel-details">
+        <div class="hotel-name">Maldron Hotel Sandy Road, Galway</div>
+        <div class="hotel-stars">★★★★</div>
+        <div class="hotel-meta">Night 4 · Rating 8.3 · Free parking</div>
+        <div class="hotel-price-row"><span class="hotel-price">£204</span><a class="hotel-book" href="https://www.booking.com/hotel/ie/maldronsandyroad.html" target="_blank">Book →</a></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── DAY 5 ── -->
+  <div class="day-card">
+    <div class="day-header">
+      <div class="day-badge"><span class="num">5</span><span class="label">Day</span></div>
+      <div class="day-meta">
+        <div class="day-date">Thursday 6 August</div>
+        <div class="day-title">Galway → Athlone → Drogheda</div>
+      </div>
+    </div>
+    <div class="day-map" id="map-day5"></div>
+    <div class="drive-pill">🚗 Galway to Drogheda · ~2h 30min · 220 km via M6/M4 · leave by mid-morning</div>
+    <div class="img-grid">
+      <div class="img-slot" id="img-athlone"><div class="img-placeholder"><div class="ph-icon">🏰</div><div>Athlone Castle</div><div class="ph-text">Loading…</div></div></div>
+      <div class="img-slot" id="img-drogheda"><div class="img-placeholder"><div class="ph-icon">⚓</div><div>Drogheda</div><div class="ph-text">Loading…</div></div></div>
+    </div>
+    <div class="activities">
+      <div class="activity"><div class="activity-icon green">🏰</div><div><b>Athlone</b> — good halfway lunch stop (~1 hr from Galway). Athlone Castle sits on the River Shannon. Great waterfront setting.</div></div>
+      <div class="activity"><div class="activity-icon amber">🏛️</div><div><b>Millmount Fort, Drogheda</b> — panoramic views over the town. The Millmount Museum covers Viking, Norman and Civil War history.</div></div>
+      <div class="activity"><div class="activity-icon blue">🍽️</div><div><b>Evening in Drogheda</b> — genuine local feel without tourist pricing. West Street and James Street have a good range of restaurants.</div></div>
+    </div>
+    <div class="hotel-section">
+      <div class="hotel-img-slot" id="himg-marcy">
+        <div class="hotel-img-placeholder" style="background: linear-gradient(135deg, #3a2c6a 0%, #22194a 100%); color: rgba(255,255,255,0.9);">
+          <div style="font-size:28px;">🌙</div>
+          <div style="font-size:13px; font-weight:600; text-align:center; padding: 0 8px;">The Marcy Hotel</div>
+        </div>
+      </div>
+      <div class="hotel-details">
+        <div class="hotel-name">The Marcy Hotel, Drogheda</div>
+        <div class="hotel-stars">★★★</div>
+        <div class="hotel-meta">Night 5 · Rating 8.5 · Free parking · West Street</div>
+        <div class="hotel-price-row"><span class="hotel-price">£207</span><a class="hotel-book" href="https://www.booking.com/hotel/ie/the-marcy.html" target="_blank">Book →</a></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── DAY 6 ── -->
+  <div class="day-card">
+    <div class="day-header">
+      <div class="day-badge" style="background:#c47a00;"><span class="num">6</span><span class="label">Day</span></div>
+      <div class="day-meta">
+        <div class="day-date">Friday 7 August</div>
+        <div class="day-title">Newgrange, then home ✈</div>
+      </div>
+    </div>
+    <div class="day-map" id="map-day6"></div>
+    <div class="drive-pill">🚗 Newgrange 15min · Dublin Airport 35min from hotel · FR816 departs 20:20</div>
+    <div class="img-grid">
+      <div class="img-slot" id="img-newgrange" style="height:240px;"><div class="img-placeholder"><div class="ph-icon">🌀</div><div>Newgrange</div><div class="ph-text">Loading…</div></div></div>
+    </div>
+    <div class="activities">
+      <div class="activity"><div class="activity-icon green">🌀</div><div><b>Brú na Bóinne / Newgrange</b> — 15 minutes from the hotel. UNESCO World Heritage megalithic passage tomb, 3200 BC — older than the pyramids. Visitor centre + guided tomb tour: 2–3 hours. <b>Book online well in advance</b> — August slots sell out weeks ahead.</div></div>
+      <div class="activity"><div class="activity-icon amber">✈️</div><div><b>Dublin Airport</b> — 35 minutes from Drogheda. Return hire car, check in for FR816. With a 20:20 departure, aim to arrive by 17:30. No rush.</div></div>
+      <div class="activity"><div class="activity-icon green">🎢</div><div><b>Emerald Park (formerly Tayto Park)</b> <em>(optional — trip highlight for the kids)</em> — Ireland's main theme park with rollercoasters, a waterpark, zoo and falconry. In Ashbourne, 20 mins from Drogheda and 25 mins from Dublin Airport. With a 20:20 flight you could spend 3–4 hours here and still make the airport comfortably. <b>Book online in advance.</b></div></div>
+    </div>
+    <div class="departure-strip">
+      <div><span>Flight home · </span><strong>FR816 · Dublin → Edinburgh</strong></div>
+      <div><span>Departs </span><strong>20:20</strong><span> · Lands </span><strong>21:30</strong></div>
+    </div>
+  </div>
+
+  <!-- COSTS -->
+  <div class="section-header" style="margin-top:2rem;"><h2>Accommodation costs</h2></div>
+  <div class="cost-section">
+    <div class="cost-header">5-night breakdown</div>
+    <div class="cost-row"><span class="label">Sun 2 Aug · Premier Inn Cork<span class="night">Night 1</span></span><span class="amount">£133</span></div>
+    <div class="cost-row"><span class="label">Mon 3 Aug · Premier Inn Cork<span class="night">Night 2</span></span><span class="amount">£133</span></div>
+    <div class="cost-row"><span class="label">Tue 4 Aug · Maldron Hotel Limerick<span class="night">Night 3</span></span><span class="amount">£204</span></div>
+    <div class="cost-row"><span class="label">Wed 5 Aug · Maldron Sandy Road, Galway<span class="night">Night 4</span></span><span class="amount">£204</span></div>
+    <div class="cost-row"><span class="label">Thu 6 Aug · The Marcy Hotel, Drogheda<span class="night">Night 5</span></span><span class="amount">£207</span></div>
+    <div class="cost-total"><span class="label">Total accommodation</span><span class="amount">£881</span></div>
+    <div class="cost-note">Not included: hire car (book early for August — budget ~£250–350 for the week), fuel (~£50–70 for 700 km), attraction entry (Newgrange ~€13/adult €6/child; Aqua Dome ~€22/adult €19/child; Bunratty ~€20/adult €12/child), meals. Flights already booked: FR809 (31 Jul) and FR816 (7 Aug) — ref MTLYWY.</div>
+  </div>
+
+  <!-- TO DO -->
+  <div class="section-header"><h2>Still to book</h2></div>
+  <div style="background:#fff;border:1px solid #e5e1d8;border-radius:10px;overflow:hidden;margin-bottom:2rem;">
+    <div style="padding:14px 18px;border-bottom:1px solid #eee9df;display:flex;justify-content:space-between;font-size:14px;"><span>🏨 Hotels — all 5 nights above</span><span style="color:#888;">via Booking.com</span></div>
+    <div style="padding:14px 18px;border-bottom:1px solid #eee9df;display:flex;justify-content:space-between;font-size:14px;"><span>🚗 Hire car (31 Jul – 7 Aug)</span><span style="color:#e08000;font-weight:600;">⚡ Book early</span></div>
+    <div style="padding:14px 18px;border-bottom:1px solid #eee9df;display:flex;justify-content:space-between;font-size:14px;"><span>🌀 Newgrange timed entry — <a href="https://www.newgrange.com" target="_blank">newgrange.com</a></span><span style="color:#e08000;font-weight:600;">⚡ Sells out in August</span></div>
+    <div style="padding:14px 18px;display:flex;justify-content:space-between;font-size:14px;"><span>🌊 Aqua Dome Tralee — <a href="https://www.aquadome.ie" target="_blank">aquadome.ie</a></span><span style="color:#888;">Worth pre-booking</span></div>
+  </div>
+
+  <div class="print-bar"><button class="print-btn" onclick="window.print()">🖨 Save as PDF / Print</button></div>
+</div>
+
+<div class="footer">O'Reilly Family Ireland Tour · August 2026 · Generated with Claude</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+// ── MAP DATA ──────────────────────────────────────────
+const L_TILE = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+const L_ATTR = '&copy; <a href="https://openstreetmap.org">OSM</a> contributors &copy; <a href="https://carto.com">CARTO</a>';
+
+const pts = {
+  wexford:     [52.3369, -6.4633],
+  cashel:      [52.5201, -7.8894],
+  cork:        [51.8985, -8.4756],
+  killarney:   [52.0599, -9.5044],
+  tralee:      [52.2632, -9.7055],
+  bunratty:    [52.6960, -8.8128],
+  limerick:    [52.6638, -8.6267],
+  burren:      [53.0406, -9.1040],
+  moher:       [52.9725, -9.4261],
+  galway:      [53.2707, -9.0568],
+  athlone:     [53.4239, -7.9407],
+  drogheda:    [53.7196, -6.3561],
+  newgrange:   [53.6948, -6.4762],
+  dublinAP:    [53.4213, -6.2701]
+};
+
+function makeIcon(label, cls) {
+  return L.divIcon({
+    className: '',
+    html: `<div class="custom-marker ${cls||''}">${label}</div>`,
+    iconSize: [28, 28], iconAnchor: [14, 14], popupAnchor: [0, -16]
+  });
+}
+
+function initMap(id, center, zoom, layers) {
+  const map = L.map(id, { zoomControl: true, scrollWheelZoom: false }).setView(center, zoom);
+  L.tileLayer(L_TILE, { attribution: L_ATTR, maxZoom: 18 }).addTo(map);
+  layers.forEach(l => {
+    if (l.type === 'line') {
+      L.polyline(l.pts, { color: l.color || '#1a5c3a', weight: 3, opacity: 0.8, dashArray: l.dash || null }).addTo(map);
+    } else if (l.type === 'marker') {
+      L.marker(l.pt, { icon: makeIcon(l.label, l.cls) }).addTo(map).bindPopup(`<b>${l.name}</b>`);
+    }
+  });
+}
+
+// ── OVERVIEW MAP ──────────────────────────────────────
+const overview = L.map('map-overview', { scrollWheelZoom: false }).setView([52.8, -8.2], 7);
+L.tileLayer(L_TILE, { attribution: L_ATTR, maxZoom: 18 }).addTo(overview);
+// Full route line
+const routePts = [pts.wexford, pts.cashel, pts.cork, pts.killarney, pts.tralee, pts.cork, pts.bunratty, pts.limerick, pts.burren, pts.moher, pts.galway, pts.athlone, pts.drogheda, pts.newgrange, pts.dublinAP];
+L.polyline(routePts, { color: '#1a5c3a', weight: 3, opacity: 0.7 }).addTo(overview);
+// Overnight stops (numbered)
+const overnights = [
+  [pts.wexford,  '★', '', 'Wexford (wedding)'],
+  [pts.cork,     '1', '', 'Cork (2 nights)'],
+  [pts.limerick, '3', '', 'Limerick'],
+  [pts.galway,   '4', '', 'Galway'],
+  [pts.drogheda, '5', '', 'Drogheda'],
+  [pts.dublinAP, '✈', 'airport', 'Dublin Airport']
+];
+overnights.forEach(([pt, lbl, cls, name]) =>
+  L.marker(pt, { icon: makeIcon(lbl, cls) }).addTo(overview).bindPopup(`<b>${name}</b>`)
+);
+// Day-trip stops
+const dayStops = [
+  [pts.cashel,   '·', 'stop', 'Rock of Cashel'],
+  [pts.killarney,'·', 'stop', 'Killarney'],
+  [pts.tralee,   '·', 'stop', 'Aqua Dome, Tralee'],
+  [pts.bunratty, '·', 'stop', 'Bunratty Castle'],
+  [pts.burren,   '·', 'stop', 'The Burren'],
+  [pts.moher,    '·', 'stop', 'Cliffs of Moher'],
+  [pts.athlone,  '·', 'stop', 'Athlone'],
+  [pts.newgrange,'·', 'stop', 'Newgrange']
+];
+dayStops.forEach(([pt, lbl, cls, name]) =>
+  L.marker(pt, { icon: makeIcon(lbl, cls) }).addTo(overview).bindPopup(`<b>${name}</b>`)
+);
+
+// ── DAY MAPS ──────────────────────────────────────────
+// Day 1: Wexford → Cashel → Cork
+initMap('map-day1', [52.2, -7.6], 8, [
+  { type: 'line', pts: [pts.wexford, pts.cashel, pts.cork] },
+  { type: 'marker', pt: pts.wexford,  label: 'S', name: 'Wexford', cls: 'airport' },
+  { type: 'marker', pt: pts.cashel,   label: '🏰', name: 'Rock of Cashel', cls: 'stop' },
+  { type: 'marker', pt: pts.cork,     label: '1', name: 'Cork (overnight)' }
+]);
+
+// Day 2: Cork → Killarney → Tralee → Cork
+initMap('map-day2', [52.0, -9.2], 9, [
+  { type: 'line', pts: [pts.cork, pts.killarney, pts.tralee, pts.cork], color: '#c47a00', dash: '6,4' },
+  { type: 'marker', pt: pts.cork,      label: '1', name: 'Cork (base)' },
+  { type: 'marker', pt: pts.killarney, label: '🌲', name: 'Killarney National Park', cls: 'stop' },
+  { type: 'marker', pt: pts.tralee,    label: '🌊', name: 'Aqua Dome, Tralee', cls: 'stop' }
+]);
+
+// Day 3: Cork → Bunratty → Limerick
+initMap('map-day3', [52.3, -8.9], 9, [
+  { type: 'line', pts: [pts.cork, pts.bunratty, pts.limerick] },
+  { type: 'marker', pt: pts.cork,     label: '1', name: 'Cork (depart)' },
+  { type: 'marker', pt: pts.bunratty, label: '🏰', name: 'Bunratty Castle', cls: 'stop' },
+  { type: 'marker', pt: pts.limerick, label: '3', name: 'Limerick (overnight)' }
+]);
+
+// Day 4: Limerick → Burren → Moher → Galway
+initMap('map-day4', [52.9, -9.2], 9, [
+  { type: 'line', pts: [pts.limerick, pts.burren, pts.moher, pts.galway] },
+  { type: 'marker', pt: pts.limerick, label: '3', name: 'Limerick (depart)' },
+  { type: 'marker', pt: pts.burren,   label: '🪨', name: 'The Burren', cls: 'stop' },
+  { type: 'marker', pt: pts.moher,    label: '⛰️', name: 'Cliffs of Moher', cls: 'stop' },
+  { type: 'marker', pt: pts.galway,   label: '4', name: 'Galway (overnight)' }
+]);
+
+// Day 5: Galway → Athlone → Drogheda
+initMap('map-day5', [53.2, -7.7], 8, [
+  { type: 'line', pts: [pts.galway, pts.athlone, pts.drogheda] },
+  { type: 'marker', pt: pts.galway,   label: '4', name: 'Galway (depart)' },
+  { type: 'marker', pt: pts.athlone,  label: '🏰', name: 'Athlone (lunch)', cls: 'stop' },
+  { type: 'marker', pt: pts.drogheda, label: '5', name: 'Drogheda (overnight)' }
+]);
+
+// Day 6: Drogheda → Newgrange → Dublin Airport
+initMap('map-day6', [53.57, -6.38], 10, [
+  { type: 'line', pts: [pts.drogheda, pts.newgrange, pts.dublinAP] },
+  { type: 'marker', pt: pts.drogheda,  label: '5', name: 'Drogheda (depart)' },
+  { type: 'marker', pt: pts.newgrange, label: '🌀', name: 'Newgrange', cls: 'stop' },
+  { type: 'marker', pt: pts.dublinAP,  label: '✈', name: 'Dublin Airport', cls: 'airport' }
+]);
+
+// ── WIKIPEDIA IMAGES ──────────────────────────────────
+const wikiImages = [
+  { slot: 'img-cashel',    article: 'Rock_of_Cashel',         caption: 'Rock of Cashel · en route stop' },
+  { slot: 'img-cork',      article: 'English_Market',          caption: 'English Market · Cork city' },
+  { slot: 'img-killarney', article: 'Killarney_National_Park', caption: 'Killarney National Park' },
+  { slot: 'img-tralee',    article: 'Tralee',                  caption: 'Tralee, Co. Kerry', fallback: 'County_Kerry' },
+  { slot: 'img-bunratty',  article: 'Bunratty_Castle',         caption: 'Bunratty Castle & Folk Park' },
+  { slot: 'img-kingjohn',  article: "King_John's_Castle",      caption: "King John's Castle · Limerick" },
+  { slot: 'img-burren',    article: 'The_Burren',              caption: 'The Burren · Co. Clare' },
+  { slot: 'img-moher',     article: 'Cliffs_of_Moher',         caption: 'Cliffs of Moher' },
+  { slot: 'img-galway',    article: 'Galway',                  caption: 'Galway city' },
+  { slot: 'img-athlone',   article: 'Athlone_Castle',          caption: 'Athlone Castle · lunch stop' },
+  { slot: 'img-drogheda',  article: 'Drogheda',                caption: 'Drogheda · Co. Meath' },
+  { slot: 'img-newgrange', article: 'Newgrange',               caption: 'Brú na Bóinne / Newgrange · 3200 BC' },
+];
+
+async function loadWikiImage(entry) {
+  const el = document.getElementById(entry.slot);
+  if (!el) return;
+  const articles = [entry.article, entry.fallback].filter(Boolean);
+  for (const article of articles) {
+    try {
+      const r = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(article)}`);
+      if (!r.ok) continue;
+      const d = await r.json();
+      const url = d.originalimage?.source || d.thumbnail?.source;
+      if (url) {
+        el.innerHTML = `<img src="${url}" alt="${article.replace(/_/g,' ')}" style="width:100%;height:100%;object-fit:cover;display:block;"><div class="img-caption">${entry.caption}</div>`;
+        return;
+      }
+    } catch(e) {}
+  }
+  // Fallback: remove loading text
+  const ph = el.querySelector('.ph-text');
+  if (ph) ph.textContent = 'Image unavailable';
+}
+
+// Cover image
+async function loadCover() {
+  const img = document.getElementById('cover-img');
+  if (!img) return;
+  for (const article of ['Cliffs_of_Moher', 'Ring_of_Kerry', 'Connemara']) {
+    try {
+      const r = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${article}`);
+      if (!r.ok) continue;
+      const d = await r.json();
+      const url = d.originalimage?.source || d.thumbnail?.source;
+      if (url) { img.onload = () => img.style.opacity = '0.6'; img.src = url; return; }
+    } catch(e) {}
+  }
+}
+
+// Hotel images via CORS proxy (allorigins.win)
+const hotelImages = [
+  { slot: 'himg-premierinn',      url: 'https://www.booking.com/hotel/ie/premier-inn-cork-city-centre.html',        wiki: 'Premier_Inn', name: 'Premier Inn' },
+  { slot: 'himg-premierinn2',     url: 'https://www.booking.com/hotel/ie/premier-inn-cork-city-centre.html',        wiki: 'Premier_Inn', name: 'Premier Inn' },
+  { slot: 'himg-maldronlimerick', url: 'https://www.booking.com/hotel/ie/quality-leisure-centre-limerick.html',     wiki: 'Maldron_Hotels', name: 'Maldron Hotels' },
+  { slot: 'himg-maldronsandyroad',url: 'https://www.booking.com/hotel/ie/maldronsandyroad.html',                    wiki: 'Maldron_Hotels', name: 'Maldron Hotels' },
+  { slot: 'himg-marcy',           url: 'https://www.booking.com/hotel/ie/the-marcy.html',                           wiki: null, name: 'The Marcy Hotel' }
+];
+
+async function loadHotelImage(entry) {
+  const el = document.getElementById(entry.slot);
+  if (!el) return;
+  // Try Wikipedia brand image first
+  if (entry.wiki) {
+    try {
+      const r = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${entry.wiki}`);
+      if (r.ok) {
+        const d = await r.json();
+        const url = d.originalimage?.source || d.thumbnail?.source;
+        if (url) {
+          el.innerHTML = `<img src="${url}" alt="${entry.name}" style="width:100%;height:100%;object-fit:cover;object-position:center;display:block;">`;
+          return;
+        }
+      }
+    } catch(e) {}
+  }
+  // Try booking.com via CORS proxy
+  try {
+    const proxy = `https://api.allorigins.win/raw?url=${encodeURIComponent(entry.url)}`;
+    const r = await fetch(proxy);
+    if (r.ok) {
+      const html = await r.text();
+      const m = html.match(/property="og:image"\s+content="([^"]+)"/);
+      if (m && m[1]) {
+        el.innerHTML = `<img src="${m[1]}" alt="${entry.name}" style="width:100%;height:100%;object-fit:cover;display:block;">`;
+        return;
+      }
+    }
+  } catch(e) {}
+  // Styled fallback remains
+}
+
+loadCover();
+wikiImages.forEach(loadWikiImage);
+hotelImages.forEach(loadHotelImage);
+</script>
+</body>
+</html>
